@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Grand Luxury Tree</title>
+
+  <!-- Fonts: Cinzel + Times New Roman -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0b14;        /* 夜空 */
+      --fg: #e8e6df;        /* 奢雅米白 */
+      --accent: #c8b47e;    /* 金色点缀 */
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: radial-gradient(1200px at 50% 120%, #0f1020 0%, #0b0b14 70%);
+      color: var(--fg);
+      font-family: "Times New Roman", Times, serif;
+    }
+    #app {
+      position: fixed; inset: 0;
+    }
+    header {
+      position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+      font-family: "Cinzel", serif;
+      letter-spacing: 0.08em;
+      color: var(--fg);
+      text-align: center;
+      user-select: none;
+    }
+    header h1 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 28px;
+    }
+    header p {
+      margin: 6px 0 0;
+      opacity: 0.7;
+      font-size: 14px;
+    }
+    .badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 10px;
+      border: 1px solid rgba(200,180,126,0.3);
+      border-radius: 999px;
+      color: var(--accent);
+      font-size: 12px;
+    }
+    video#cam {
+      position: fixed; right: 16px; bottom: 16px;
+      width: 200px; height: 150px; object-fit: cover;
+      border: 1px solid rgba(200,180,126,0.25);
+      border-radius: 8px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+      backdrop-filter: blur(6px);
+    }
+    .hint {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      font-size: 13px; opacity: 0.8; letter-spacing: 0.02em;
+    }
+    .hint b { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Grand Luxury Tree</h1>
+    <p>Pinch → Focus photo · Open → Scatter · Fist → Aggregate tree</p>
+    <div class="badge">Three.js × MediaPipe</div>
+  </header>
+
+  <div id="app"></div>
+  <video id="cam" autoplay playsinline muted></video>
+  <div class="hint">手势：<b>捏合</b> 聚焦照片 · <b>张开</b> 散开 · <b>握拳</b> 聚合成树</div>
+
+  <!-- Three.js -->
+  <script type="module" src="https://unpkg.com/three@0.160.0/build/three.module.js"></script>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
