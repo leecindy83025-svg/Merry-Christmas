@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Grand Luxury Tree</title>
 
-  <!-- Fonts -->
+  <!-- Cinzel -->
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
@@ -15,16 +15,16 @@
       --accent: #c8b47e;
     }
     html, body {
-      height: 100%;
-      margin: 0;
-      background: radial-gradient(1200px at 50% 120%, #0f1020 0%, #0b0b14 70%);
+      height: 100%; margin: 0;
+      background: radial-gradient(1100px at 50% 110%, #101225 0%, #0b0b14 70%);
       color: var(--fg);
       font-family: "Times New Roman", Times, serif;
     }
     #app { position: fixed; inset: 0; }
     header {
-      position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
-      font-family: "Cinzel", serif; text-align: center; letter-spacing: 0.08em;
+      position: fixed; top: 22px; left: 50%; transform: translateX(-50%);
+      text-align: center; letter-spacing: 0.08em; font-family: "Cinzel", serif;
+      user-select: none;
     }
     header h1 { margin: 0; font-weight: 700; font-size: 28px; }
     header p { margin: 6px 0 0; opacity: 0.75; font-size: 14px; }
@@ -49,13 +49,13 @@
 <body>
   <header>
     <h1>Grand Luxury Tree</h1>
-    <p>Pinch → Focus photo · Open → Scatter · Fist → Aggregate tree</p>
+    <p>Pinch → Focus tree · Open → Scatter · Fist → Aggregate</p>
     <div class="badge">Three.js × MediaPipe</div>
   </header>
 
   <div id="app"></div>
   <video id="cam" autoplay playsinline muted></video>
-  <div class="hint">手势：<b>捏合</b> 聚焦照片 · <b>张开</b> 散开 · <b>握拳</b> 聚合成树</div>
+  <div class="hint">手势：<b>捏合</b> 聚焦树 · <b>张开</b> 散开 · <b>握拳</b> 聚合成树</div>
 
   <!-- Three.js -->
   <script type="module" src="https://unpkg.com/three@0.160.0/build/three.module.js"></script>
