@@ -5,7 +5,7 @@ import {
   GestureRecognizer,
 } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.js';
 
-// ===== Renderer & Scene =====
+// ---------- Renderer & Scene ----------
 const app = document.getElementById('app');
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(innerWidth, innerHeight);
@@ -16,15 +16,15 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 200);
 camera.position.set(0, 1.4, 6);
 
-// Lights
+// Lights（极简奢华）
 scene.add(new THREE.AmbientLight(0x232323, 0.6));
 const keyLight = new THREE.DirectionalLight(0xfff3d0, 1.0);
 keyLight.position.set(3, 6, 6);
 scene.add(keyLight);
 scene.add(new THREE.HemisphereLight(0x404050, 0x0b0b14, 0.35));
 
-// ===== Particle Tree =====
-const particleCount = 42000;
+// ---------- Particle Tree ----------
+const particleCount = 38000; // 桌面可升至 50k
 const particleGeo = new THREE.BufferGeometry();
 const positions = new Float32Array(particleCount * 3);
 const colors = new Float32Array(particleCount * 3);
@@ -32,12 +32,13 @@ const colors = new Float32Array(particleCount * 3);
 const targetTree = new Float32Array(particleCount * 3);
 const targetScatter = new Float32Array(particleCount * 3);
 
-const colorA = new THREE.Color(0xc8b47e);
-const colorB = new THREE.Color(0xe8e6df);
+const colorA = new THREE.Color(0xc8b47e); // 金色
+const colorB = new THREE.Color(0xe8e6df); // 米白
 
 function generateTargets() {
   const height = 3.6, baseRadius = 1.6;
   for (let i = 0; i < particleCount; i++) {
+    // 圆锥树
     const h = Math.random() * height;
     const r = baseRadius * (1 - h / height);
     const theta = Math.random() * Math.PI * 2;
@@ -50,7 +51,7 @@ function generateTargets() {
     targetTree[i*3+1] = y;
     targetTree[i*3+2] = z;
 
-    // Scatter: random sphere shell
+    // 散开星云（球壳）
     const R = 5.0, u = Math.random(), v = Math.random();
     const phi = 2 * Math.PI * u, costheta = 2*v - 1, sintheta = Math.sqrt(1 - costheta*costheta);
     const sx = R * sintheta * Math.cos(phi);
@@ -65,7 +66,7 @@ function generateTargets() {
     positions[i*3+1] = sy;
     positions[i*3+2] = sz;
 
-    // luxe dual tone
+    // 奢华双色灯泡
     const mix = Math.pow(Math.random(), 1.6);
     const c = colorA.clone().lerp(colorB, mix);
     colors[i*3+0] = c.r; colors[i*3+1] = c.g; colors[i*3+2] = c.b;
@@ -83,7 +84,21 @@ const particles = new THREE.Points(particleGeo, particleMat);
 particles.position.y = 0.4;
 scene.add(particles);
 
-// ===== Snow Particles =====
+// 顶部星星（发光）
+const starGeo = new THREE.SphereGeometry(0.12, 16, 16);
+const starMat = new THREE.MeshBasicMaterial({ color: 0xffe59a });
+const star = new THREE.Mesh(starGeo, starMat);
+star.position.set(0, 0.4 + 3.6 + 0.3, 0);
+scene.add(star);
+
+const starGlowGeo = new THREE.SphereGeometry(0.12, 16, 16);
+const starGlowMat = new THREE.MeshBasicMaterial({ color: 0xffe59a, transparent: true, opacity: 0.35 });
+const starGlow = new THREE.Mesh(starGlowGeo, starGlowMat);
+starGlow.scale.set(1.0, 1.0, 1.0);
+starGlow.position.copy(star.position);
+scene.add(starGlow);
+
+// ---------- Snow Particles ----------
 const snowCount = 800;
 const snowGeo = new THREE.BufferGeometry();
 const snowPos = new Float32Array(snowCount * 3);
@@ -99,50 +114,20 @@ const snowMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.02, transpar
 const snow = new THREE.Points(snowGeo, snowMat);
 scene.add(snow);
 
-// ===== Photos =====
-const textureLoader = new THREE.TextureLoader();
-const photoUrls = [
-  '005OxMBSly1i3ex3b1milj32s41b84qs',
-  '005OxMBSly1i3to23qhlcj32ls1jkhdx',
-  '005OxMBSly1i4hzadvxo5j32sd1b84qu',
-  '005OxMBSly1i287felpisj32s91b81l1',
-];
-const photos = [];
-const photoGroup = new THREE.Group();
-scene.add(photoGroup);
-
-function spawnPhotos() {
-  photoUrls.forEach(url => {
-    const tex = textureLoader.load(url);
-    const geo = new THREE.PlaneGeometry(1.0, 1.3);
-    const mat = new THREE.MeshPhysicalMaterial({
-      map: tex, clearcoat: 0.6, clearcoatRoughness: 0.2, roughness: 0.45, metalness: 0.0, sheen: 0.3,
-      transparent: true,
-    });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.set((Math.random()-0.5)*8, 0.8 + (Math.random()-0.5)*3, (Math.random()-0.5)*8);
-    mesh.rotation.set((Math.random()-0.5)*0.6, (Math.random()-0.5)*1.2, (Math.random()-0.5)*0.2);
-    mesh.userData.floatPhase = Math.random() * Math.PI * 2;
-    photos.push(mesh);
-    photoGroup.add(mesh);
-  });
-}
-spawnPhotos();
-
-// ===== State Machine =====
+// ---------- State Machine ----------
 const STATE = { TREE: 'TREE', SCATTER: 'SCATTER', FOCUS: 'FOCUS' };
 let currentState = STATE.SCATTER;
-let morphT = 0; // 0 scatter, 1 tree
-let focusPhoto = null;
+let morphT = 0; // 0: scatter, 1: tree
+let focusPulse = 0; // 捏合时树的呼吸脉动
 
-// ===== Resize =====
+// ---------- Resize ----------
 window.addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
 
-// ===== MediaPipe GestureRecognizer =====
+// ---------- MediaPipe GestureRecognizer ----------
 const videoEl = document.getElementById('cam');
 let gestureRecognizer = null;
 let lastGesture = null;
@@ -201,30 +186,19 @@ function onGesture(g) {
     currentState = STATE.TREE;      // 握拳→聚合成树
   } else if (g === 'OPEN') {
     currentState = STATE.SCATTER;   // 张开→散开
-    focusPhoto = null;
   } else if (g === 'PINCH') {
-    focusPhoto = pickClosestPhotoToCamera(); // 捏合→聚焦照片
-    if (focusPhoto) currentState = STATE.FOCUS;
+    currentState = STATE.FOCUS;     // 捏合→聚焦树（加亮与呼吸）
+    focusPulse = 0;
   }
 }
 
-function pickClosestPhotoToCamera() {
-  let best = null, bestD = Infinity;
-  const camPos = camera.position.clone();
-  photos.forEach(p => {
-    const d = p.position.distanceTo(camPos);
-    if (d < bestD) { bestD = d; best = p; }
-  });
-  return best;
-}
-
-// ===== Animate =====
+// ---------- Animate ----------
 const clock = new THREE.Clock();
 
 function animate() {
   const dt = clock.getDelta();
 
-  // Snow
+  // 雪花下落+轻微横摆
   const sPos = snowGeo.attributes.position.array;
   for (let i = 0; i < snowCount; i++) {
     sPos[i*3+1] -= snowVel[i] * dt;
@@ -237,10 +211,15 @@ function animate() {
   }
   snowGeo.attributes.position.needsUpdate = true;
 
-  // Morph particles
+  // 粒子树状态插值
   const speed = 0.8;
   if (currentState === STATE.TREE) morphT = Math.min(1, morphT + dt * speed);
   else if (currentState === STATE.SCATTER) morphT = Math.max(0, morphT - dt * speed);
+  // FOCUS：保持树态，但通过呼吸与加亮强调
+  if (currentState === STATE.FOCUS) {
+    morphT = Math.min(1, morphT + dt * speed);
+    focusPulse += dt;
+  }
 
   const pos = particleGeo.attributes.position.array;
   for (let i = 0; i < particleCount; i++) {
@@ -251,23 +230,12 @@ function animate() {
   }
   particleGeo.attributes.position.needsUpdate = true;
 
-  // Photos float & focus
-  photos.forEach(p => {
-    p.userData.floatPhase += dt * 0.5;
-    const sway = Math.sin(p.userData.floatPhase) * 0.02;
-    p.position.y += sway;
-    p.rotation.y += 0.15 * dt;
-    p.rotation.x += 0.07 * dt;
-  });
-
-  if (currentState === STATE.FOCUS && focusPhoto) {
-    const targetPos = new THREE.Vector3(0, 1.2, camera.position.z - 1.8);
-    focusPhoto.position.lerp(targetPos, 0.15);
-    focusPhoto.rotation.set(0, 0, 0);
-    photos.forEach(p => (p.material.opacity = p === focusPhoto ? 1.0 : 0.35));
-  } else {
-    photos.forEach(p => (p.material.opacity = 1.0));
-  }
+  // 粒子轻微闪烁（呼吸）
+  const baseOpacity = currentState === STATE.FOCUS
+    ? 0.95 + Math.sin(focusPulse * 2.2) * 0.05
+    : 0.92;
+  particleMat.opacity = THREE.MathUtils.clamp(baseOpacity, 0.85, 1.0);
+  starGlow.scale.setScalar(1.0 + Math.sin(performance.now() * 0.002) * 0.12);
 
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
