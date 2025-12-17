@@ -13,11 +13,11 @@
 "type": "image/png"
 },
 {
-"src": "images/app_icon.png",
+"src": "images/Christmas.icon.png",
 "sizes": "512x512",
 "type": "image/png"
   }
  ]
 }
-<link rel="apple-touch-icon" href="images/app_icon.png">
-<link rel="icon" type="image/png" href="images/app_icon.png">
+<link rel="apple-touch-icon" href="images/Christmas.icon.png">
+<link rel="icon" type="image/png" href="images/Christmas.icon.png">
